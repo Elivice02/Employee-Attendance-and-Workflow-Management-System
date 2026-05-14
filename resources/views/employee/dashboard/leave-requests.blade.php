@@ -1,11 +1,9 @@
 @extends('layouts.employee')
 
-@section('title', 'Dashboard')
+@section('title', 'Leave Requests')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Leave Requests</h1>
-
     <div class="mb-4">
         <a href="{{ route('employee.leave.create') }}" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
             + Request New Leave

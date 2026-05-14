@@ -10,19 +10,38 @@
 <div class="flex min-h-screen">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-lg p-6">
+    <aside class="w-64 bg-white shadow-lg p-6 flex flex-col">
         <h2 class="text-2xl font-bold text-teal-600 mb-8">HR Panel</h2>
 
-        <nav class="space-y-4">
-            <a href="{{ route('hr.dashboard') }}" class="block hover:text-teal-600">Dashboard</a>
-            <a href="{{ route('hr.employees.create') }}" class="block hover:text-teal-600">Employees</a>
-            <a href="{{ route('hr.departments.index') }}" class="block hover:text-teal-600">Departments</a>
+        <nav class="flex-1 space-y-4">
+            <a href="{{ route('hr.dashboard') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">Dashboard</a>
+            <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">My Profile</a>
+            <a href="{{ route('hr.employees.create') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">Add User</a>
+            <a href="{{ route('hr.employees.index') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">Employees & Supervisors</a>
         </nav>
+
+        <!-- Logout Button at Bottom -->
+        <div class="border-t pt-4">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition font-medium">
+                    🚪 Logout
+                </button>
+            </form>
+        </div>
     </aside>
 
-    <!-- Main -->
-    <main class="flex-1 p-8">
-        @yield('content')
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col bg-gray-50">
+
+        <!-- Topbar with Profile -->
+        @include('components.topbar')
+
+        <!-- Page Content -->
+        <div class="flex-1 p-8 overflow-auto">
+            @yield('content')
+        </div>
+
     </main>
 
 </div>

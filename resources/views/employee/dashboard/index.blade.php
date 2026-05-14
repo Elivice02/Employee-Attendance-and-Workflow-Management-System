@@ -1,11 +1,9 @@
 @extends('layouts.employee')
 
-@section('title', 'Dashboard')
+@section('title', 'Employee Dashboard')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Welcome, {{ Auth::user()->name }}</h1>
-
     <!-- Stats Section -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <!-- Attendance Rate Card -->

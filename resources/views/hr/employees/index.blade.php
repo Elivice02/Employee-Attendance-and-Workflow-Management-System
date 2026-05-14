@@ -1,11 +1,11 @@
 @extends('layouts.hr')
 
 @section('content')
-<h1 class="text-2xl font-bold mb-4">Employees</h1>
+<h1 class="text-2xl font-bold mb-4">Employees and Supervisors</h1>
 
 <a href="{{ route('hr.employees.create') }}"
    class="bg-teal-600 text-white px-4 py-2 rounded mb-4 inline-block">
-   + Add Employee
+   + Add User
 </a>
 
 <table class="w-full border">
@@ -13,6 +13,7 @@
         <tr class="bg-gray-100">
             <th class="p-3">Name</th>
             <th class="p-3">Email</th>
+            <th class="p-3">Role</th>
             <th class="p-3">Department</th>
             <th class="p-3">Actions</th>
         </tr>
@@ -23,6 +24,7 @@
         <tr class="border-t">
             <td class="p-3">{{ $employee->name }}</td>
             <td class="p-3">{{ $employee->email }}</td>
+            <td class="p-3 capitalize">{{ $employee->role }}</td>
             <td class="p-3">{{ $employee->department->name ?? 'N/A' }}</td>
 
             <td class="p-3 flex gap-2">
@@ -42,7 +44,7 @@
                 <!-- Delete -->
                 <form action="{{ route('hr.employees.destroy', $employee->id) }}"
                       method="POST"
-                      onsubmit="return confirm('Delete this employee?')">
+                      onsubmit="return confirm('Delete this user?')">
                     @csrf
                     @method('DELETE')
                     <button class="bg-red-500 text-white px-3 py-1 rounded text-sm">

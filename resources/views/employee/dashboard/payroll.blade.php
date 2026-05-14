@@ -1,11 +1,9 @@
 @extends('layouts.employee')
 
-@section('title', 'Dashboard')
+@section('title', 'Payroll Information')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Payroll Information</h1>
-
     <!-- Salary Summary -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div class="bg-blue-500 text-white p-6 rounded-lg shadow">

@@ -71,7 +71,7 @@
     </div>
     <div class="app-feature-card">
       <h3>Step 2: HR Management</h3>
-      <p>HR manages employees, departments, and supervisors</p>
+      <p>HR manages employees and assigns them to departments</p>
     </div>
     <div class="app-feature-card">
       <h3>Step 3: Daily Operations</h3>

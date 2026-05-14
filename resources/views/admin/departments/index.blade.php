@@ -13,11 +13,11 @@
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Departments</h1>
             <p class="text-gray-500 text-sm mt-1">
-                Create and manage departments
+                Manage organization-level departments
             </p>
         </div>
 
-        <a href="{{ route('hr.departments.create') }}"
+        <a href="{{ route('admin.departments.create') }}"
            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow">
             + New Department
         </a>
@@ -79,12 +79,12 @@
 
                             <td class="px-6 py-4 text-right space-x-2">
 
-                                <a href="{{ route('hr.departments.edit', $dept->id) }}"
+                                <a href="{{ route('admin.departments.edit', $dept->id) }}"
                                    class="text-blue-600 hover:underline text-sm">
                                     Edit
                                 </a>
 
-                                <form action="{{ route('hr.departments.destroy', $dept->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                                <form action="{{ route('admin.departments.destroy', $dept->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:underline text-sm">

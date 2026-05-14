@@ -1,11 +1,9 @@
 @extends('layouts.employee')
 
-@section('title', 'Dashboard')
+@section('title', 'Change Password')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Change Password</h1>
-
     @if ($errors->any())
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <ul>

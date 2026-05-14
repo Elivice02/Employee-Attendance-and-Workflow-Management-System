@@ -61,7 +61,8 @@
                     </div>
 
                     <!-- DOB -->
-                    <div class="mt-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                    <div>
                         <label class="text-sm font-medium text-gray-600">Date of Birth</label>
                         <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $hr->date_of_birth) }}"
                             class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
@@ -69,6 +70,17 @@
                         @error('date_of_birth')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Phone Number</label>
+                        <input name="phone" value="{{ old('phone', $hr->phone) }}"
+                            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+
+                        @error('phone')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                     </div>
                 </div>
 

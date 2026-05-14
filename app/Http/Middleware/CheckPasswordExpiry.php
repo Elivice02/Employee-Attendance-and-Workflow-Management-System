@@ -17,7 +17,7 @@ class CheckPasswordExpiry
             $user = auth()->user();
 
             // Skip for change-password route
-            if ($request->routeIs('password.change', 'password.update')) {
+            if ($request->routeIs('password.change', 'password.change.update')) {
                 return $next($request);
             }
 

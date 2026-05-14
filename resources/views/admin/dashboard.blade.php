@@ -21,18 +21,28 @@
                    Dashboard
                 </a>
 
+                <a href="{{ route('profile.edit') }}"
+                   class="block px-3 py-2 rounded hover:bg-gray-100">
+                   My Profile
+                </a>
+
                 <a href="/admin/hr-managers"
                    class="block px-3 py-2 rounded hover:bg-gray-100">
                    HR Managers
+                </a>
+
+                <a href="{{ route('admin.departments.index') }}"
+                   class="block px-3 py-2 rounded hover:bg-gray-100">
+                   Departments
                 </a>
             </nav>
         </div>
 
         <!-- Logout -->
-        <form method="POST" action="/logout">
+        <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button class="w-full bg-red-500 text-white p-2 rounded hover:bg-red-600">
-                Logout
+            <button class="w-full bg-red-500 text-white p-2 rounded hover:bg-red-600 transition font-medium">
+                🚪 Logout
             </button>
         </form>
     </aside>
@@ -52,6 +62,9 @@
                     <p class="text-sm text-gray-500 capitalize">
                         {{ auth()->user()->role }}
                     </p>
+                    <a href="{{ route('profile.edit') }}" class="text-xs text-blue-600 hover:underline">
+                        Edit profile
+                    </a>
                 </div>
 
                 @if(auth()->user()->profile_picture)

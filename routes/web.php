@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeDashboardController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\PromotionController;
@@ -19,15 +20,6 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']) ->name('logout');
-
-// Protected Routes with Role Middleware
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', fn() => view('admin.dashboard'));
-});
-
-Route::middleware(['auth', 'role:hr'])->prefix('hr')->group(function () {
-    Route::get('/dashboard', fn() => view('hr.dashboard'));
-});
 
 Route::middleware(['auth', 'role:supervisor'])
     ->prefix('supervisor')
@@ -90,12 +82,18 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::delete('/hr-managers/{hr}', [AdminController::class, 'destroyHR'])
             ->name('hr.destroy');
+
+        // Departments
+        Route::resource('departments', DepartmentController::class);
     });
 
 // Password Change Route
 Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
     Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('password.change');
-    Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.update');
+    Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.change.update');
 });
 
 // HR Routes
@@ -120,8 +118,6 @@ Route::middleware(['auth', 'role:hr'])
         Route::get('promotions', [PromotionLogController::class, 'index'])
             ->name('promotions.index');
 
-        // Departments
-        Route::resource('departments', DepartmentController::class);
     });
 
 // Password Reset Routes
@@ -136,4 +132,3 @@ Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showRese
 
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
     ->name('password.update');
-

@@ -23,7 +23,7 @@ class Department extends Model
     }
 
     /**
-     * Who created this department (HR user)
+     * Who created this department.
      */
     public function creator()
     {

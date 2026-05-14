@@ -27,19 +27,24 @@
                 Dashboard
             </a>
 
-            <a href="#"
+            <a href="{{ route('employee.profile') }}"
+               class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                Profile
+            </a>
+
+            <a href="{{ route('employee.attendance') }}"
                class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
                 Attendance
             </a>
 
-            <a href="#"
+            <a href="{{ route('employee.leave.index') }}"
                class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
                 Leave Requests
             </a>
 
-            <a href="#"
-               class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
-                Profile
+            <a href="{{ route('employee.payroll') }}" 
+                class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                    Payroll                
             </a>
 
         </nav>
@@ -55,21 +60,13 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col bg-gray-50">
 
-        <!-- Topbar -->
-        <header class="bg-white shadow-sm p-4 flex justify-between items-center">
-            <h2 class="text-lg font-semibold text-gray-800">
-                @yield('title', 'Dashboard')
-            </h2>
-
-            <div class="text-sm text-gray-600">
-                {{ auth()->user()->name ?? 'Employee' }}
-            </div>
-        </header>
+        <!-- Topbar with Profile -->
+        @include('components.topbar')
 
         <!-- Page Content -->
-        <main class="p-6">
+        <main class="flex-1 p-6 overflow-auto">
             @yield('content')
         </main>
 

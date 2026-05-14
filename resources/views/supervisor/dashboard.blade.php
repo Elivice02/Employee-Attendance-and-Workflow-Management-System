@@ -1,27 +1,8 @@
 @extends('layouts.supervisor')
 
+@section('title', 'Supervisor Dashboard')
+
 @section('content')
-<div class="min-h-screen bg-gray-100 p-6">
-
-    {{-- Header --}}
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">
-                Welcome, {{ auth()->user()->name }}
-            </h1>
-            <p class="text-gray-500">Supervisor Dashboard</p>
-        </div>
-
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button
-                type="submit"
-                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-            >
-                Logout
-            </button>
-        </form>
-    </div>
 
     {{-- KPI Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -75,5 +56,4 @@
 
     </div>
 
-</div>
 @endsection

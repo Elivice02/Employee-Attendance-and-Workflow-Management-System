@@ -23,6 +23,7 @@ class HRService
                 'email' => $data['email'],
                 'gender' => $data['gender'] ?? null,
                 'date_of_birth' => $data['date_of_birth'] ?? null,
+                'phone' => $data['phone'] ?? null,
                 'profile_picture' => $path,
                 'password' => Hash::make($tempPassword),
                 'role' => 'hr',
@@ -46,6 +47,7 @@ class HRService
                 'email' => $data['email'],
                 'gender' => $data['gender'] ?? null,
                 'date_of_birth' => $data['date_of_birth'] ?? null,
+                'phone' => $data['phone'] ?? null,
             ];
 
             if ($file) {

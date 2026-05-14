@@ -9,17 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class DepartmentController extends Controller
 {
-    /**
-     * LIST DEPARTMENTS (HR only)
-     */
     public function index()
     {
-        $departments = Department::where('created_by', Auth::id())
-            ->orWhere('status', 'active')
-            ->latest()
-            ->get();
+        $departments = Department::latest()->get();
 
-        return view('hr.departments.index', compact('departments'));
+        return view('admin.departments.index', compact('departments'));
     }
 
     /**
@@ -27,8 +21,8 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        $employees = User::where('role', 'employee')->get();
-        return view('hr.departments.create', compact('employees'));
+        $employees = User::whereIn('role', ['supervisor'])->get();
+        return view('admin.departments.create', compact('employees'));
     }
 
     /**
@@ -50,7 +44,7 @@ class DepartmentController extends Controller
 
         Department::create($validated);
 
-        return redirect()->route('hr.departments.index')
+        return redirect()->route('admin.departments.index')
             ->with('success', 'Department created successfully');
     }
 
@@ -59,13 +53,8 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department)
     {
-        // Only creator can edit
-        if ($department->created_by !== Auth::id()) {
-            abort(403, 'Unauthorized');
-        }
-
-        $employees = User::where('role', 'employee')->get();
-        return view('hr.departments.edit', compact('department', 'employees'));
+        $employees = User::whereIn('role', ['supervisor', 'employee'])->get();
+        return view('admin.departments.edit', compact('department', 'employees'));
     }
 
     /**
@@ -73,11 +62,6 @@ class DepartmentController extends Controller
      */
     public function update(Request $request, Department $department)
     {
-        // Only creator can update
-        if ($department->created_by !== Auth::id()) {
-            abort(403, 'Unauthorized');
-        }
-
         $validated = $request->validate([
             'name' => 'required|string|unique:departments,name,' . $department->id,
             'description' => 'nullable|string',
@@ -87,7 +71,7 @@ class DepartmentController extends Controller
 
         $department->update($validated);
 
-        return redirect()->route('hr.departments.index')
+        return redirect()->route('admin.departments.index')
             ->with('success', 'Department updated successfully');
     }
 
@@ -96,11 +80,6 @@ class DepartmentController extends Controller
      */
     public function destroy(Department $department)
     {
-        // Only creator can delete
-        if ($department->created_by !== Auth::id()) {
-            abort(403, 'Unauthorized');
-        }
-
         // Check if department has employees
         if ($department->employees()->count() > 0) {
             return back()->with('error', 'Cannot delete department with assigned employees');
@@ -108,7 +87,7 @@ class DepartmentController extends Controller
 
         $department->delete();
 
-        return redirect()->route('hr.departments.index')
+        return redirect()->route('admin.departments.index')
             ->with('success', 'Department deleted successfully');
     }
 }

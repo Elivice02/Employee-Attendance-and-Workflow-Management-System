@@ -22,7 +22,7 @@
 
             <x-alert />
 
-            <form method="POST" action="{{ route('hr.departments.update', $department->id) }}" class="space-y-8">
+            <form method="POST" action="{{ route('admin.departments.update', $department->id) }}" class="space-y-8">
                 @csrf
                 @method('PUT')
 
@@ -92,7 +92,7 @@
                         Update Department
                     </button>
 
-                    <a href="{{ route('hr.departments.index') }}"
+                    <a href="{{ route('admin.departments.index') }}"
                         class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold text-center shadow-md hover:shadow-lg hover:scale-[1.01] transition">
                         Cancel
                     </a>

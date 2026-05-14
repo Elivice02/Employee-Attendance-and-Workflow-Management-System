@@ -1,29 +1,22 @@
 @extends('layouts.hr')
 
+@section('title', 'HR Dashboard')
+
 @section('content')
 
 <div class="space-y-8">
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">HR Dashboard</h1>
-            <p class="text-gray-500 mt-1">
-                Manage employees, departments, promotions, and attendance.
-            </p>
-        </div>
+    <!-- Quick Actions -->
+    <div class="flex gap-3 mb-6">
+        <a href="{{ route('hr.employees.create') }}"
+           class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-lg shadow">
+            + Add Employee
+        </a>
 
-        <div class="flex gap-3">
-            <a href="{{ route('hr.employees.create') }}"
-               class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-lg shadow">
-                + Add Employee
-            </a>
-
-            <a href="{{ route('hr.employees.index') }}"
-               class="bg-white border border-gray-300 hover:bg-gray-100 px-5 py-2 rounded-lg shadow">
-                View Employees
-            </a>
-        </div>
+        <a href="{{ route('hr.employees.index') }}"
+           class="bg-white border border-gray-300 hover:bg-gray-100 px-5 py-2 rounded-lg shadow">
+            View Employees
+        </a>
     </div>
 
 
@@ -46,7 +39,7 @@
         </div>
 
         <div class="bg-white p-5 rounded-xl shadow border-l-4 border-purple-500">
-            <p class="text-sm text-gray-500">Departments</p>
+            <p class="text-sm text-gray-500">Assigned Departments</p>
             <h2 class="text-3xl font-bold text-gray-800 mt-2">6</h2>
         </div>
 
@@ -74,9 +67,9 @@
 
         <a href="#"
            class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
-            <h3 class="font-semibold text-lg text-gray-800">Departments</h3>
+            <h3 class="font-semibold text-lg text-gray-800">Staff Assignment</h3>
             <p class="text-gray-500 mt-2 text-sm">
-                Manage organizational departments and teams.
+                Assign employees and supervisors to existing departments.
             </p>
         </a>
 
