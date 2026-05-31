@@ -11,11 +11,17 @@ class SupervisorController extends Controller
     {
         $supervisor = auth()->user();
 
-        $employees = User::where('department_id', $supervisor->department_id)
+        $employees = $supervisor->employees()
             ->where('role', 'employee')
             ->get();
+        $attendanceData = AttendanceController::dashboardDataFor($supervisor);
+        $lateNotifications = AttendanceController::notificationsFor($supervisor);
 
-        return view('supervisor.dashboard', compact('employees'));
+        return view('supervisor.dashboard', [
+            'employees' => $employees,
+            'lateNotifications' => $lateNotifications,
+            ...$attendanceData,
+        ]);
     }
 
     public function index()

@@ -104,9 +104,48 @@ class User extends Authenticatable
         return $this->hasMany(User::class, 'supervisor_id');
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function attendanceNotifications()
+    {
+        return $this->hasMany(AttendanceNotification::class, 'recipient_id');
+    }
+
+    public function appNotifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     // who created this user (audit)
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get all leave requests submitted by this employee
+     */
+    public function leaveRequests()
+    {
+        return $this->hasMany(Leave::class, 'user_id');
+    }
+
+    /**
+     * Get all leave requests where this user is the supervisor reviewer
+     */
+    public function supervisorLeaveReviews()
+    {
+        return $this->hasMany(Leave::class, 'supervisor_id');
+    }
+
+    /**
+     * Get all leave requests where this user is the HR reviewer
+     */
+    public function hrLeaveReviews()
+    {
+        return $this->hasMany(Leave::class, 'hr_id');
     }
 }

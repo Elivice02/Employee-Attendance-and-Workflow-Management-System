@@ -6,6 +6,10 @@
 
 <div class="space-y-8">
 
+    @include('attendance._widget')
+
+    @include('attendance._notifications', ['attendanceReviewUrl' => route('hr.attendance.index')])
+
     <!-- Quick Actions -->
     <div class="flex gap-3 mb-6">
         <a href="{{ route('hr.employees.create') }}"
@@ -25,17 +29,17 @@
 
         <div class="bg-white p-5 rounded-xl shadow border-l-4 border-blue-500">
             <p class="text-sm text-gray-500">Total Employees</p>
-            <h2 class="text-3xl font-bold text-gray-800 mt-2">120</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mt-2">{{ $totalEmployees }}</h2>
         </div>
 
         <div class="bg-white p-5 rounded-xl shadow border-l-4 border-green-500">
             <p class="text-sm text-gray-500">Present Today</p>
-            <h2 class="text-3xl font-bold text-green-600 mt-2">98</h2>
+            <h2 class="text-3xl font-bold text-green-600 mt-2">{{ $presentToday }}</h2>
         </div>
 
         <div class="bg-white p-5 rounded-xl shadow border-l-4 border-red-500">
-            <p class="text-sm text-gray-500">Absent</p>
-            <h2 class="text-3xl font-bold text-red-600 mt-2">22</h2>
+            <p class="text-sm text-gray-500">Late Pending Review</p>
+            <h2 class="text-3xl font-bold text-red-600 mt-2">{{ $latePending }}</h2>
         </div>
 
         <div class="bg-white p-5 rounded-xl shadow border-l-4 border-purple-500">
@@ -57,7 +61,7 @@
             </p>
         </a>
 
-        <a href="#"
+        <a href="{{ route('hr.attendance.index') }}"
            class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
             <h3 class="font-semibold text-lg text-gray-800">Attendance</h3>
             <p class="text-gray-500 mt-2 text-sm">

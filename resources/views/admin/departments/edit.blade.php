@@ -41,6 +41,18 @@
                         @enderror
                     </div>
 
+                    <!-- Code -->
+                    <div class="mb-5">
+                        <label class="text-sm font-medium text-gray-600">Department Code *</label>
+                        <input name="code" value="{{ old('code', $department->code) }}" placeholder="e.g., IT, HR, FIN" maxlength="10"
+                            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none transition @error('code') border-red-500 @enderror">
+                        <p class="text-xs text-gray-500 mt-1">Used in official letter references, for example LE/2026/IT/001.</p>
+
+                        @error('code')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Description -->
                     <div class="mb-5">
                         <label class="text-sm font-medium text-gray-600">Description</label>

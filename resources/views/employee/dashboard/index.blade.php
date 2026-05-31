@@ -4,6 +4,10 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
+    @include('attendance._widget')
+
+    @include('attendance._notifications', ['attendanceReviewUrl' => route('employee.attendance')])
+
     <!-- Stats Section -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <!-- Attendance Rate Card -->

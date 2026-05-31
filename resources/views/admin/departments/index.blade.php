@@ -41,6 +41,7 @@
                 <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
                     <tr>
                         <th class="px-6 py-3">Name</th>
+                        <th class="px-6 py-3">Code</th>
                         <th class="px-6 py-3">Description</th>
                         <th class="px-6 py-3">Department Head</th>
                         <th class="px-6 py-3">Employees</th>
@@ -55,6 +56,10 @@
 
                             <td class="px-6 py-4 font-medium text-gray-900">
                                 {{ $dept->name }}
+                            </td>
+
+                            <td class="px-6 py-4 text-gray-600">
+                                {{ $dept->code ?? '-' }}
                             </td>
 
                             <td class="px-6 py-4 text-gray-600 max-w-xs truncate">
@@ -96,7 +101,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-10 text-gray-500">
+                            <td colspan="7" class="text-center py-10 text-gray-500">
                                 No departments found
                             </td>
                         </tr>

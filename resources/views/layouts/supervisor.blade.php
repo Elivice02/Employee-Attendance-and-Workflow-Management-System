@@ -18,8 +18,17 @@
             <a href="{{ route('supervisor.dashboard') }}" class="block hover:bg-slate-800 p-2 rounded transition">Dashboard</a>
             <a href="{{ route('profile.edit') }}" class="block hover:bg-slate-800 p-2 rounded transition">My Profile</a>
             <a href="#" class="block hover:bg-slate-800 p-2 rounded transition">Team Members</a>
-            <a href="#" class="block hover:bg-slate-800 p-2 rounded transition">Attendance Review</a>
-            <a href="#" class="block hover:bg-slate-800 p-2 rounded transition">Leave Approval</a>
+            <a href="{{ route('supervisor.attendance.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Attendance Review</a>
+            <a href="{{ route('notifications.index') }}" class="flex items-center justify-between hover:bg-slate-800 p-2 rounded transition">
+                <span>Notifications</span>
+                @php($notificationCount = auth()->user()->appNotifications()->unread()->count())
+                @if ($notificationCount > 0)
+                    <span class="min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center">
+                        {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                    </span>
+                @endif
+            </a>
+            <a href="{{ route('supervisor.leaves.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Leave Recommendations</a>
             <a href="#" class="block hover:bg-slate-800 p-2 rounded transition">Reports</a>
         </nav>
 

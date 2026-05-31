@@ -18,6 +18,17 @@
             <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">My Profile</a>
             <a href="{{ route('hr.employees.create') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">Add User</a>
             <a href="{{ route('hr.employees.index') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">Employees & Supervisors</a>
+            <a href="{{ route('hr.attendance.index') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">Attendance</a>
+            <a href="{{ route('hr.leaves.index') }}" class="block px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">Leave Management</a>
+            <a href="{{ route('notifications.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition text-gray-700">
+                <span>Notifications</span>
+                @php($notificationCount = auth()->user()->appNotifications()->unread()->count())
+                @if ($notificationCount > 0)
+                    <span class="min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center">
+                        {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                    </span>
+                @endif
+            </a>
         </nav>
 
         <!-- Logout Button at Bottom -->

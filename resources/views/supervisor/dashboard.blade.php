@@ -4,12 +4,16 @@
 
 @section('content')
 
+    @include('attendance._widget')
+
+    @include('attendance._notifications', ['attendanceReviewUrl' => route('supervisor.attendance.index')])
+
     {{-- KPI Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
         <div class="bg-white rounded-xl shadow p-6">
             <h2 class="text-gray-500 text-sm">Employees</h2>
-            <p class="text-3xl font-bold mt-2">25</p>
+            <p class="text-3xl font-bold mt-2">{{ $employees->count() }}</p>
         </div>
 
         <div class="bg-white rounded-xl shadow p-6">
@@ -44,9 +48,9 @@
                     Assign Task
                 </button>
 
-                <button class="w-full border border-gray-300 py-2 rounded-lg">
-                    View Team
-                </button>
+                <a href="{{ route('supervisor.attendance.index') }}" class="block text-center w-full border border-gray-300 py-2 rounded-lg">
+                    Review Attendance
+                </a>
 
                 <button class="w-full border border-gray-300 py-2 rounded-lg">
                     Generate Report

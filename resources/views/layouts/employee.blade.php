@@ -37,6 +37,17 @@
                 Attendance
             </a>
 
+            <a href="{{ route('notifications.index') }}"
+               class="flex items-center justify-between px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                <span>Notifications</span>
+                @php($notificationCount = auth()->user()->appNotifications()->unread()->count())
+                @if ($notificationCount > 0)
+                    <span class="min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center">
+                        {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                    </span>
+                @endif
+            </a>
+
             <a href="{{ route('employee.leave.index') }}"
                class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
                 Leave Requests

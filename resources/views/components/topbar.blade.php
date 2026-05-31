@@ -5,6 +5,21 @@
         </h2>
 
         <div class="flex items-center space-x-4">
+            @php
+                $unreadNotifications = auth()->user()->appNotifications()->unread()->count();
+            @endphp
+
+            <a href="{{ route('notifications.index') }}"
+               class="relative inline-flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition"
+               title="Notifications">
+                <span class="text-xl">🔔</span>
+                @if ($unreadNotifications > 0)
+                    <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center">
+                        {{ $unreadNotifications > 99 ? '99+' : $unreadNotifications }}
+                    </span>
+                @endif
+            </a>
+
             <div class="relative group">
                 <button class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
                     @if (auth()->user()->profile_picture)

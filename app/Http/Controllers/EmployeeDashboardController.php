@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Leave;
+use App\Models\Attendance;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -16,14 +18,55 @@ class EmployeeDashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+
+        // Calculate real attendance rate for current month
+        $totalWorkingDays = Attendance::query()
+            ->where('user_id', $user->id)
+            ->whereMonth('attendance_date', now()->month)
+            ->whereYear('attendance_date', now()->year)
+            ->count();
+
+        $presentDays = Attendance::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'present')
+            ->whereMonth('attendance_date', now()->month)
+            ->whereYear('attendance_date', now()->year)
+            ->count();
+
+        $attendanceRate = $totalWorkingDays > 0 ? round(($presentDays / $totalWorkingDays) * 100) : 0;
+
+        // Count pending leave requests
+        $pendingRequests = Leave::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->count();
+
+        // Default leave allocation (20 days - can be configured in system settings later)
+        $totalLeaves = 20;
+
+        // Calculate used leaves (approved only)
+        $usedLeaves = Leave::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'hr_approved')
+            ->whereYear('start_date', now()->year)
+            ->sum('total_days');
+
         $stats = [
-            'attendance_rate' => rand(80, 99), // Mock data
-            'pending_requests' => rand(0, 3),
-            'total_leaves' => 20,
-            'used_leaves' => rand(5, 15),
+            'attendance_rate' => $attendanceRate,
+            'pending_requests' => $pendingRequests,
+            'total_leaves' => $totalLeaves,
+            'used_leaves' => $usedLeaves,
         ];
 
-        return view('employee.dashboard.index', compact('user', 'stats'));
+        $attendanceData = AttendanceController::dashboardDataFor($user);
+        $lateNotifications = AttendanceController::notificationsFor($user);
+
+        return view('employee.dashboard.index', [
+            'user' => $user,
+            'stats' => $stats,
+            'lateNotifications' => $lateNotifications,
+            ...$attendanceData,
+        ]);
     }
 
     /**
@@ -69,31 +112,19 @@ class EmployeeDashboardController extends Controller
      */
     public function attendance()
     {
-        $user = Auth::user();
-        // Mock attendance data
-        $records = [
-            ['date' => now()->subDays(1), 'status' => 'Present', 'check_in' => '09:00', 'check_out' => '17:30'],
-            ['date' => now()->subDays(2), 'status' => 'Present', 'check_in' => '09:15', 'check_out' => '17:45'],
-            ['date' => now()->subDays(3), 'status' => 'Absent', 'check_in' => '-', 'check_out' => '-'],
-            ['date' => now()->subDays(4), 'status' => 'Present', 'check_in' => '09:05', 'check_out' => '17:00'],
-            ['date' => now()->subDays(5), 'status' => 'Leave', 'check_in' => '-', 'check_out' => '-'],
-        ];
-
-        return view('employee.dashboard.attendance', compact('records'));
+        return redirect()->route('employee.attendance');
     }
 
     /**
-     * Show leave requests
+     * Show leave requests from database
      */
     public function leaveRequests()
     {
         $user = Auth::user();
-        // Mock leave data
-        $leaves = [
-            ['type' => 'Annual Leave', 'from' => now()->addDays(10), 'to' => now()->addDays(12), 'status' => 'Pending', 'days' => 3],
-            ['type' => 'Sick Leave', 'from' => now()->subDays(5), 'to' => now()->subDays(5), 'status' => 'Approved', 'days' => 1],
-            ['type' => 'Casual Leave', 'from' => now()->subDays(15), 'to' => now()->subDays(15), 'status' => 'Rejected', 'days' => 1],
-        ];
+        // Fetch from database
+        $leaves = $user->leaveRequests()
+            ->orderByDesc('created_at')
+            ->get();
 
         return view('employee.dashboard.leave-requests', compact('leaves'));
     }
@@ -107,42 +138,58 @@ class EmployeeDashboardController extends Controller
     }
 
     /**
-     * Store a new leave request
+     * Store a new leave request to database
      */
     public function requestLeave(Request $request)
     {
+        $user = Auth::user();
+
         $validated = $request->validate([
-            'leave_type' => 'required|string',
-            'from_date' => 'required|date',
-            'to_date' => 'required|date|after_or_equal:from_date',
-            'reason' => 'required|string|max:500',
+            'leave_type' => 'required|in:annual,sick,maternity,paternity,emergency,unpaid',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'required|string|min:10|max:1000',
+            'attachment_path' => 'nullable|file|max:5120|mimes:pdf,jpg,jpeg,png,doc,docx',
         ]);
 
-        // Store leave request (would normally save to database)
-        return back()->with('success', 'Leave request submitted successfully');
+        // Calculate total days
+        $startDate = \Carbon\Carbon::parse($validated['start_date']);
+        $endDate = \Carbon\Carbon::parse($validated['end_date']);
+        $totalDays = $startDate->diffInDays($endDate) + 1;
+
+        // Handle file upload if provided
+        $attachmentPath = null;
+        if ($request->hasFile('attachment_path')) {
+            $attachmentPath = $request->file('attachment_path')->store('leave-attachments', 'public');
+        }
+
+        // Get supervisor for this employee
+        $supervisor = $user->supervisor;
+
+        // Create leave request
+        Leave::create([
+            'user_id' => $user->id,
+            'leave_type' => $validated['leave_type'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'total_days' => $totalDays,
+            'reason' => $validated['reason'],
+            'attachment_path' => $attachmentPath,
+            'status' => 'pending',
+            'supervisor_id' => $supervisor?->id,
+        ]);
+
+        return redirect()
+            ->route('employee.leave.index')
+            ->with('success', 'Leave request submitted successfully. Your supervisor will review it.');
     }
 
     /**
-     * Show payroll information
+     * Show payroll information (Coming Soon)
      */
     public function payroll()
     {
-        $user = Auth::user();
-        // Mock payroll data
-        $salary_info = [
-            'base_salary' => 50000,
-            'allowances' => 5000,
-            'deductions' => 2000,
-            'net_salary' => 53000,
-        ];
-
-        $payslips = [
-            ['month' => 'April 2026', 'amount' => 53000, 'status' => 'Paid'],
-            ['month' => 'March 2026', 'amount' => 53000, 'status' => 'Paid'],
-            ['month' => 'February 2026', 'amount' => 53000, 'status' => 'Paid'],
-        ];
-
-        return view('employee.dashboard.payroll', compact('salary_info', 'payslips'));
+        return view('employee.dashboard.payroll-coming-soon');
     }
 
     /**
@@ -171,3 +218,4 @@ class EmployeeDashboardController extends Controller
         return back()->with('success', 'Password changed successfully');
     }
 }
+

@@ -32,13 +32,16 @@ class DepartmentController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|unique:departments,name',
+            'code' => 'required|string|max:10|alpha_num|unique:departments,code',
             'description' => 'nullable|string',
             'head_id' => 'nullable|exists:users,id',
         ], [
             'name.unique' => 'Department name already exists',
+            'code.unique' => 'Department code already exists',
             'head_id.exists' => 'Selected department head does not exist',
         ]);
 
+        $validated['code'] = strtoupper($validated['code']);
         $validated['created_by'] = Auth::id();
         $validated['status'] = 'active';
 
@@ -64,10 +67,13 @@ class DepartmentController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|unique:departments,name,' . $department->id,
+            'code' => 'required|string|max:10|alpha_num|unique:departments,code,' . $department->id,
             'description' => 'nullable|string',
             'head_id' => 'nullable|exists:users,id',
             'status' => 'required|in:active,inactive',
         ]);
+
+        $validated['code'] = strtoupper($validated['code']);
 
         $department->update($validated);
 

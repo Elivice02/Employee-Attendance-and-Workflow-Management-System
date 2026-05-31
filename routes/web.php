@@ -6,10 +6,15 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeDashboardController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\HRDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\PromotionLogController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\LeaveController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,7 +33,20 @@ Route::middleware(['auth', 'role:supervisor'])
 
         Route::get('/dashboard', [App\Http\Controllers\SupervisorController::class, 'dashboard'])
             ->name('dashboard');
-            });
+
+        Route::get('/attendance', [AttendanceController::class, 'supervisorIndex'])
+            ->name('attendance.index');
+
+        Route::get('/leaves', [LeaveController::class, 'supervisorIndex'])
+            ->name('leaves.index');
+
+        Route::get('/leaves/{leave}', [LeaveController::class, 'supervisorShow'])
+            ->name('leaves.show');
+
+        Route::post('/leaves/{leave}/recommend', [LeaveController::class, 'supervisorRecommend'])
+            ->name('leaves.recommend');
+
+    });
             
 Route::middleware(['auth', 'role:employee'])->prefix('employee')->name('employee.')->group(function () {
     // Dashboard
@@ -39,12 +57,14 @@ Route::middleware(['auth', 'role:employee'])->prefix('employee')->name('employee
     Route::post('/profile', [EmployeeDashboardController::class, 'updateProfile'])->name('profile.update');
 
     // Attendance
-    Route::get('/attendance', [EmployeeDashboardController::class, 'attendance'])->name('attendance');
+    Route::get('/attendance', [AttendanceController::class, 'employeeRecords'])->name('attendance');
 
     // Leave Requests
-    Route::get('/leave-requests', [EmployeeDashboardController::class, 'leaveRequests'])->name('leave.index');
-    Route::get('/request-leave', [EmployeeDashboardController::class, 'requestLeaveForm'])->name('leave.create');
-    Route::post('/request-leave', [EmployeeDashboardController::class, 'requestLeave'])->name('leave.store');
+    Route::get('/leave-requests', [LeaveController::class, 'employeeIndex'])->name('leave.index');
+    Route::get('/leave-requests/{leave}', [LeaveController::class, 'employeeShow'])->name('leave.show');
+    Route::get('/request-leave', [LeaveController::class, 'create'])->name('leave.create');
+    Route::post('/request-leave/preview', [LeaveController::class, 'preview'])->name('leave.preview');
+    Route::post('/request-leave', [LeaveController::class, 'store'])->name('leave.store');
 
     // Payroll
     Route::get('/payroll', [EmployeeDashboardController::class, 'payroll'])->name('payroll');
@@ -89,6 +109,20 @@ Route::middleware(['auth', 'role:admin'])
 
 // Password Change Route
 Route::middleware('auth')->group(function () {
+    Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+    Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.check-out');
+    Route::get('/attendance/late-check-in', [AttendanceController::class, 'lateCheckInForm'])->name('attendance.late.create');
+    Route::post('/attendance/late-check-in/preview', [AttendanceController::class, 'previewLateCheckIn'])->name('attendance.late.preview');
+    Route::post('/attendance/late-check-in/submit', [AttendanceController::class, 'submitLateCheckIn'])->name('attendance.late.store');
+    Route::get('/attendance/{attendance}/evidence', [AttendanceController::class, 'editLateEvidence'])->name('attendance.evidence.edit');
+    Route::post('/attendance/{attendance}/evidence', [AttendanceController::class, 'updateLateEvidence'])->name('attendance.evidence.update');
+    Route::get('/attendance/{attendance}/letter/{type?}', [AttendanceController::class, 'viewLateLetter'])->name('attendance.letter');
+    Route::get('/leave-requests/{leave}/pdf', [LeaveController::class, 'pdf'])->name('leave.pdf');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
@@ -102,8 +136,26 @@ Route::middleware(['auth', 'role:hr'])
     ->name('hr.')
     ->group(function () {
 
-        Route::get('/dashboard', fn() => view('hr.dashboard'))
+        Route::get('/dashboard', [HRDashboardController::class, 'index'])
             ->name('dashboard');
+
+        Route::get('/attendance', [AttendanceController::class, 'hrIndex'])
+            ->name('attendance.index');
+
+        Route::post('/attendance/{attendance}/late-review', [AttendanceController::class, 'reviewLate'])
+            ->name('attendance.late-review');
+
+        Route::get('/leaves', [LeaveController::class, 'hrIndex'])
+            ->name('leaves.index');
+
+        Route::get('/leaves/{leave}', [LeaveController::class, 'hrShow'])
+            ->name('leaves.show');
+
+        Route::post('/leaves/{leave}/verify', [LeaveController::class, 'hrVerify'])
+            ->name('leaves.verify');
+
+        Route::post('/leaves/{leave}/final-review', [LeaveController::class, 'hrFinalReview'])
+            ->name('leaves.final-review');
 
         // Employees (FULL CRUD)
         Route::resource('employees', EmployeeController::class);
