@@ -66,14 +66,31 @@
 
     <table class="grid">
         <tr>
-            <td>Name of Spouse: {{ $sectionA['spouse_name'] ?? '' }}</td>
-            <td>Child 1: {{ $sectionA['child_1_name'] ?? '' }} DOB: {{ $sectionA['child_1_dob'] ?? '' }}</td>
-            <td>Child 2: {{ $sectionA['child_2_name'] ?? '' }} DOB: {{ $sectionA['child_2_dob'] ?? '' }}</td>
+            <td colspan="2">Name of Spouse: {{ $sectionA['spouse_name'] ?? '' }}</td>
         </tr>
         <tr>
-            <td></td>
-            <td>Child 3: {{ $sectionA['child_3_name'] ?? '' }} DOB: {{ $sectionA['child_3_dob'] ?? '' }}</td>
-            <td>Child 4: {{ $sectionA['child_4_name'] ?? '' }} DOB: {{ $sectionA['child_4_dob'] ?? '' }}</td>
+            <td>
+                <strong>Child 1</strong><br>
+                Name: {{ $sectionA['child_1_name'] ?? '' }}<br>
+                Date of Birth: {{ $sectionA['child_1_dob'] ?? '' }}
+            </td>
+            <td>
+                <strong>Child 2</strong><br>
+                Name: {{ $sectionA['child_2_name'] ?? '' }}<br>
+                Date of Birth: {{ $sectionA['child_2_dob'] ?? '' }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>Child 3</strong><br>
+                Name: {{ $sectionA['child_3_name'] ?? '' }}<br>
+                Date of Birth: {{ $sectionA['child_3_dob'] ?? '' }}
+            </td>
+            <td>
+                <strong>Child 4</strong><br>
+                Name: {{ $sectionA['child_4_name'] ?? '' }}<br>
+                Date of Birth: {{ $sectionA['child_4_dob'] ?? '' }}
+            </td>
         </tr>
     </table>
 

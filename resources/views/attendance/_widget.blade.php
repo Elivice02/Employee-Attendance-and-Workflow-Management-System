@@ -21,7 +21,7 @@
         <div>
             <h2 class="text-xl font-bold text-gray-800">Today Attendance</h2>
             <p class="text-sm text-gray-500 mt-1">
-                Work starts at {{ \Illuminate\Support\Str::of($attendanceSetting->work_start_time)->substr(0, 5) }}.
+                Check-in must be completed before {{ \Illuminate\Support\Str::of($attendanceSetting->work_start_time)->substr(0, 5) }}.
                 Check-in and check-out are limited to the organization network.
             </p>
         </div>

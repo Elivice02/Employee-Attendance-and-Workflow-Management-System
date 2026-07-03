@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Attendance;
+use App\Models\AttendanceSetting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,6 +22,7 @@ class LateAttendanceLetterGenerator
     private function generate(Attendance $attendance, string $type): string
     {
         $attendance->loadMissing('user.department');
+        $settings = AttendanceSetting::current();
 
         $path = sprintf(
             'attendance-letters/%s/%s.pdf',
@@ -30,8 +32,8 @@ class LateAttendanceLetterGenerator
 
         $pdf = Pdf::loadView('attendance.pdf.late-letter', [
             'attendance' => $attendance,
-            'companyName' => config('attendance.company_name', 'ABC Company Ltd'),
-            'companyAddress' => config('attendance.company_address', 'P.O. Box 123, Morogoro'),
+            'companyName' => $settings->company_name,
+            'companyAddress' => $settings->company_address,
             'letterType' => $type,
         ])->setPaper('a4');
 

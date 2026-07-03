@@ -75,7 +75,8 @@
 
                 <div>
                     <label class="block mb-1 font-medium text-gray-700">Phone</label>
-                    <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="w-full border p-2 rounded">
+                    <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="0712345678 or +255712345678" class="w-full border p-2 rounded">
+                    <p class="text-xs text-gray-500 mt-1">Use a Tanzania mobile number. It will be saved as +255 format for SMS.</p>
                     @error('phone')
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror

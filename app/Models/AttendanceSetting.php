@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class AttendanceSetting extends Model
 {
     protected $fillable = [
+        'company_name',
+        'company_address',
         'work_start_time',
+        'work_end_time',
         'late_grace_minutes',
         'allowed_networks',
         'late_evidence_required',
+        'password_expiry_days',
+        'default_annual_leave_days',
     ];
 
     protected $casts = [
@@ -20,10 +25,15 @@ class AttendanceSetting extends Model
     public static function current(): self
     {
         return self::query()->firstOrCreate([], [
-            'work_start_time' => config('attendance.work_start_time', '09:00:00'),
+            'company_name' => config('attendance.company_name', 'Mzumbe Company Ltd'),
+            'company_address' => config('attendance.company_address', 'P.O. Box 01, Morogoro'),
+            'work_start_time' => config('attendance.work_start_time', '08:00:00'),
+            'work_end_time' => config('attendance.work_end_time', '17:00:00'),
             'late_grace_minutes' => config('attendance.late_grace_minutes', 0),
             'allowed_networks' => config('attendance.allowed_networks'),
             'late_evidence_required' => true,
+            'password_expiry_days' => 90,
+            'default_annual_leave_days' => 20,
         ]);
     }
 

@@ -9,3 +9,57 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+    }
+
+    .btn-secondary {
+        @apply bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500;
+    }
+
+    .btn-success {
+        @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+    }
+
+    .btn-error {
+        @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+    }
+
+    .btn-ghost {
+        @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-400;
+    }
+
+    .btn-outline {
+        @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-400;
+    }
+
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+
+    .btn-xs {
+        @apply px-2 py-1 text-xs;
+    }
+
+    .alert {
+        @apply rounded-lg border px-4 py-3 text-sm;
+    }
+
+    .alert-success {
+        @apply border-green-200 bg-green-50 text-green-800;
+    }
+
+    .alert-error {
+        @apply border-red-200 bg-red-50 text-red-800;
+    }
+
+    .alert-info {
+        @apply border-blue-200 bg-blue-50 text-blue-800;
+    }
+}

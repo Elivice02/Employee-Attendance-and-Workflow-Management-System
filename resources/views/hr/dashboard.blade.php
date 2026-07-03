@@ -44,7 +44,7 @@
 
         <div class="bg-white p-5 rounded-xl shadow border-l-4 border-purple-500">
             <p class="text-sm text-gray-500">Assigned Departments</p>
-            <h2 class="text-3xl font-bold text-gray-800 mt-2">6</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mt-2">{{ $assignedDepartments }}</h2>
         </div>
 
     </div>
@@ -86,12 +86,18 @@
             Recent Activity
         </h2>
 
-        <ul class="space-y-3 text-sm text-gray-600">
-            <li>✅ John Doe promoted to Supervisor</li>
-            <li>➕ New employee Sarah added to IT Department</li>
-            <li>📅 Attendance marked for today</li>
-            <li>🏢 Finance department updated</li>
-        </ul>
+        @if ($recentActivities->isEmpty())
+            <p class="text-sm text-gray-600">No recent activities</p>
+        @else
+            <ul class="space-y-3 text-sm text-gray-600">
+                @foreach ($recentActivities as $activity)
+                    <li class="flex items-start justify-between gap-4">
+                        <span>{{ $activity['label'] }}</span>
+                        <span class="shrink-0 text-xs text-gray-400">{{ $activity['time']?->diffForHumans() }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
     </div>
 
 </div>

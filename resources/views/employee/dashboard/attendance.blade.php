@@ -24,9 +24,9 @@
                         <td class="px-6 py-3">{{ $record->attendance_date->format('M d, Y') }}</td>
                         <td class="px-6 py-3">{{ $record->late_letter_reference ?? '-' }}</td>
                         <td class="px-6 py-3">
-                            @if (str_contains($record->status, 'approved') || $record->status === 'present')
+                            @if (str_contains($record->status, 'approved') || in_array($record->status, ['present', 'on_leave'], true))
                                 <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm capitalize">{{ str_replace('_', ' ', $record->status) }}</span>
-                            @elseif (str_contains($record->status, 'rejected'))
+                            @elseif (str_contains($record->status, 'rejected') || $record->status === 'absent')
                                 <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm capitalize">{{ str_replace('_', ' ', $record->status) }}</span>
                             @else
                                 <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm capitalize">{{ str_replace('_', ' ', $record->status) }}</span>

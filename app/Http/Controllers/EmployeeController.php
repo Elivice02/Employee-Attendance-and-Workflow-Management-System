@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Department;
 use App\Events\EmployeeCreated;
+use App\Rules\TanzaniaPhoneNumber;
+use App\Support\TanzaniaPhoneNumber as PhoneNumber;
 use Illuminate\Validation\Rule;
 
 class EmployeeController extends Controller
@@ -38,7 +40,7 @@ class EmployeeController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'gender' => ['nullable', Rule::in(['male', 'female'])],
             'date_of_birth' => ['nullable', 'date'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', new TanzaniaPhoneNumber],
             'role' => ['required', Rule::in(['employee', 'supervisor'])],
             'department_id' => ['nullable', 'exists:departments,id'],
             'supervisor_id' => ['nullable', 'exists:users,id'],
@@ -51,6 +53,7 @@ class EmployeeController extends Controller
             $validated['profile_picture'] = $request->file('profile_picture')->store('profiles', 'public');
         }
 
+        $validated['phone'] = PhoneNumber::normalize($validated['phone'] ?? null);
         $validated['password'] = Hash::make($tempPassword);
         $validated['must_change_password'] = true;
 
@@ -88,7 +91,7 @@ class EmployeeController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($employee->id)],
             'gender' => ['nullable', Rule::in(['male', 'female'])],
             'date_of_birth' => ['nullable', 'date'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', new TanzaniaPhoneNumber],
             'role' => ['required', Rule::in(['employee', 'supervisor'])],
             'department_id' => ['nullable', 'exists:departments,id'],
             'supervisor_id' => ['nullable', 'exists:users,id'],
@@ -98,6 +101,8 @@ class EmployeeController extends Controller
         if ($validated['role'] === 'supervisor') {
             $validated['supervisor_id'] = null;
         }
+
+        $validated['phone'] = PhoneNumber::normalize($validated['phone'] ?? null);
 
         if ($request->hasFile('profile_picture')) {
             if ($employee->profile_picture) {

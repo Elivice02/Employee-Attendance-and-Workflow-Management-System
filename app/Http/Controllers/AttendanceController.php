@@ -46,9 +46,7 @@ class AttendanceController extends Controller
             return back()->with('error', 'You have already checked in today.');
         }
 
-        $isLate = now()->gt(today()->setTimeFromTimeString($settings->work_start_time)->addMinutes($settings->late_grace_minutes));
-
-        if ($isLate) {
+        if ($this->isLateNow($settings)) {
             $request->session()->put('late_check_in_detected_at', now()->toISOString());
 
             return redirect()
@@ -56,8 +54,7 @@ class AttendanceController extends Controller
                 ->with('warning', 'You are late. Provide your explanation and evidence before check-in can be completed.');
         }
 
-        // Use firstOrCreate to prevent race condition
-        Attendance::query()->firstOrCreate(
+        Attendance::query()->updateOrCreate(
             [
                 'user_id' => $user->id,
                 'attendance_date' => today(),
@@ -99,8 +96,8 @@ class AttendanceController extends Controller
         return view('attendance.late-check-in', [
             'attendanceSetting' => $settings,
             'backRoute' => $this->dashboardRouteFor($user),
-            'companyName' => config('attendance.company_name', 'ABC Company Ltd'),
-            'companyAddress' => config('attendance.company_address', 'P.O. Box 123, Morogoro'),
+            'companyName' => $settings->company_name,
+            'companyAddress' => $settings->company_address,
             'referencePreview' => $this->referenceCodeFor($user)
                 ? 'LE/' . now()->format('Y') . '/' . $this->referenceCodeFor($user) . '/###'
                 : 'Generated after submission',
@@ -172,8 +169,8 @@ class AttendanceController extends Controller
 
         return view('attendance.late-preview', [
             'payload' => $request->session()->get('late_check_in_payload'),
-            'companyName' => config('attendance.company_name', 'ABC Company Ltd'),
-            'companyAddress' => config('attendance.company_address', 'P.O. Box 123, Morogoro'),
+            'companyName' => $settings->company_name,
+            'companyAddress' => $settings->company_address,
             'referencePreview' => 'LE/' . now()->format('Y') . '/' . $this->referenceCodeFor($user) . '/###',
             'attendanceDate' => today(),
             'backRoute' => $this->dashboardRouteFor($user),
@@ -221,8 +218,7 @@ class AttendanceController extends Controller
 
         $referenceCode = $this->referenceCodeFor($user);
 
-        // Use firstOrCreate to prevent race condition
-        $attendance = Attendance::query()->firstOrCreate(
+        $attendance = Attendance::query()->updateOrCreate(
             [
                 'user_id' => $user->id,
                 'attendance_date' => today(),
@@ -285,6 +281,29 @@ class AttendanceController extends Controller
         $checkOutTime = now();
         if ($checkOutTime->lte($attendance->check_in_at)) {
             return back()->with('error', 'Check-out time must be after check-in time.');
+        }
+
+        // VALIDATION 1: Ensure check-out is on the same day as check-in
+        if (! $checkOutTime->isSameDay($attendance->check_in_at)) {
+            return back()->with('error', 'Check-out must be on the same day as check-in. You cannot check out on a different day.');
+        }
+
+        // VALIDATION 2: Ensure minimum working hours (4 hours minimum)
+        $minutesWorked = $attendance->check_in_at->diffInMinutes($checkOutTime);
+        $minimumMinutes = 4 * 60; // 4 hours minimum
+
+        if ($minutesWorked < $minimumMinutes) {
+            $hoursNeeded = ceil(($minimumMinutes - $minutesWorked) / 60);
+            return back()->with('error', "You need to work at least 4 hours. You've only worked " . floor($minutesWorked / 60) . " hour(s). Please wait " . $hoursNeeded . " more hour(s).");
+        }
+
+        // VALIDATION 3: Ensure check-out is not too early (e.g., not before 4 PM / 16:00)
+        $minimumCheckOutTime = today()->setTimeFromTimeString('16:00:00');
+
+        if ($checkOutTime->lt($minimumCheckOutTime)) {
+            $minutesUntilCanCheckOut = $checkOutTime->diffInMinutes($minimumCheckOutTime);
+            $hoursUntil = ceil($minutesUntilCanCheckOut / 60);
+            return back()->with('error', "Early check-out is not allowed. You cannot check out before 16:00 (4:00 PM). Please try again in " . $hoursUntil . " hour(s).");
         }
 
         $attendance->update([
@@ -648,7 +667,7 @@ class AttendanceController extends Controller
 
     private function isLateNow(AttendanceSetting $settings): bool
     {
-        return now()->gt(today()->setTimeFromTimeString($settings->work_start_time)->addMinutes($settings->late_grace_minutes));
+        return now()->gte(today()->setTimeFromTimeString($settings->work_start_time)->addMinutes($settings->late_grace_minutes));
     }
 
     private function canMarkAttendance(User $user): bool

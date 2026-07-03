@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Leave;
 use App\Models\Attendance;
+use App\Models\AttendanceSetting;
+use App\Models\DailyLog;
+use App\Models\Task;
+use App\Rules\TanzaniaPhoneNumber;
+use App\Support\TanzaniaPhoneNumber as PhoneNumber;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -19,54 +24,145 @@ class EmployeeDashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Calculate real attendance rate for current month
-        $totalWorkingDays = Attendance::query()
+        $expectedWorkingDays = $this->workingDaysElapsedThisMonth($user);
+
+        $attendedDays = Attendance::query()
             ->where('user_id', $user->id)
+            ->whereNotNull('check_in_at')
             ->whereMonth('attendance_date', now()->month)
             ->whereYear('attendance_date', now()->year)
-            ->count();
+            ->distinct('attendance_date')
+            ->count('attendance_date');
 
-        $presentDays = Attendance::query()
-            ->where('user_id', $user->id)
-            ->where('status', 'present')
-            ->whereMonth('attendance_date', now()->month)
-            ->whereYear('attendance_date', now()->year)
-            ->count();
-
-        $attendanceRate = $totalWorkingDays > 0 ? round(($presentDays / $totalWorkingDays) * 100) : 0;
+        $attendanceRate = $expectedWorkingDays > 0 ? min(100, round(($attendedDays / $expectedWorkingDays) * 100)) : 0;
 
         // Count pending leave requests
         $pendingRequests = Leave::query()
             ->where('user_id', $user->id)
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'supervisor_approved'])
             ->count();
 
-        // Default leave allocation (20 days - can be configured in system settings later)
-        $totalLeaves = 20;
+        $totalLeaves = AttendanceSetting::current()->default_annual_leave_days;
 
-        // Calculate used leaves (approved only)
+        // Calculate used annual leaves (approved only)
         $usedLeaves = Leave::query()
             ->where('user_id', $user->id)
+            ->where('leave_type', 'annual')
             ->where('status', 'hr_approved')
             ->whereYear('start_date', now()->year)
             ->sum('total_days');
 
         $stats = [
             'attendance_rate' => $attendanceRate,
+            'attended_days' => $attendedDays,
+            'expected_working_days' => $expectedWorkingDays,
             'pending_requests' => $pendingRequests,
             'total_leaves' => $totalLeaves,
             'used_leaves' => $usedLeaves,
+            'remaining_leaves' => max(0, $totalLeaves - $usedLeaves),
+            'over_limit_leaves' => max(0, $usedLeaves - $totalLeaves),
         ];
 
         $attendanceData = AttendanceController::dashboardDataFor($user);
         $lateNotifications = AttendanceController::notificationsFor($user);
+        $recentActivities = $this->recentActivities($user);
+
+        // Get announcement data
+        $unreadAnnouncements = $user->unreadAnnouncements()
+            ->take(3)
+            ->get();
+        $unreadAnnouncementCount = $user->getUnreadAnnouncementCount();
 
         return view('employee.dashboard.index', [
             'user' => $user,
             'stats' => $stats,
             'lateNotifications' => $lateNotifications,
+            'recentActivities' => $recentActivities,
+            'unreadAnnouncements' => $unreadAnnouncements,
+            'unreadAnnouncementCount' => $unreadAnnouncementCount,
             ...$attendanceData,
         ]);
+    }
+
+    private function workingDaysElapsedThisMonth(User $user): int
+    {
+        $date = now()->copy()->startOfMonth();
+        $today = now()->copy()->startOfDay();
+        $workingDays = 0;
+
+        while ($date->lte($today)) {
+            if ($date->isWeekday() && ! $this->hasApprovedLeaveOnDate($user, $date)) {
+                $workingDays++;
+            }
+
+            $date->addDay();
+        }
+
+        return $workingDays;
+    }
+
+    private function hasApprovedLeaveOnDate(User $user, $date): bool
+    {
+        return Leave::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'hr_approved')
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->exists();
+    }
+
+    private function recentActivities(User $user)
+    {
+        $attendanceActivities = Attendance::query()
+            ->where('user_id', $user->id)
+            ->latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(fn (Attendance $attendance) => [
+                'label' => 'Attendance marked as ' . str_replace('_', ' ', $attendance->status)
+                    . ' for ' . $attendance->attendance_date->format('M d, Y'),
+                'time' => $attendance->updated_at,
+            ]);
+
+        $leaveActivities = Leave::query()
+            ->where('user_id', $user->id)
+            ->latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(fn (Leave $leave) => [
+                'label' => ucfirst(str_replace('_', ' ', $leave->leave_type)) . ' leave request is '
+                    . str_replace('_', ' ', $leave->status),
+                'time' => $leave->updated_at,
+            ]);
+
+        $taskActivities = Task::query()
+            ->where('assigned_to', $user->id)
+            ->latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(fn (Task $task) => [
+                'label' => 'Task "' . $task->title . '" is ' . str_replace('_', ' ', $task->status),
+                'time' => $task->updated_at,
+            ]);
+
+        $dailyLogActivities = DailyLog::query()
+            ->where('user_id', $user->id)
+            ->latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(fn (DailyLog $dailyLog) => [
+                'label' => 'Daily log "' . $dailyLog->title . '" is ' . str_replace('_', ' ', $dailyLog->status),
+                'time' => $dailyLog->updated_at,
+            ]);
+
+        return collect()
+            ->merge($attendanceActivities)
+            ->merge($leaveActivities)
+            ->merge($taskActivities)
+            ->merge($dailyLogActivities)
+            ->sortByDesc('time')
+            ->take(6)
+            ->values();
     }
 
     /**
@@ -90,9 +186,11 @@ class EmployeeDashboardController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'gender' => ['nullable', Rule::in(['male', 'female'])],
             'date_of_birth' => ['nullable', 'date'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', new TanzaniaPhoneNumber],
             'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
+
+        $validated['phone'] = PhoneNumber::normalize($validated['phone'] ?? null);
 
         if ($request->hasFile('profile_picture')) {
             if ($user->profile_picture) {

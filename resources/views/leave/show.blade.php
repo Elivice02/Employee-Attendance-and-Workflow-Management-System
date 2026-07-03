@@ -71,20 +71,50 @@
             @elseif ($roleView === 'hr' && $leave->current_stage === 'pending_hr_review')
                 <form action="{{ route('hr.leaves.verify', $leave) }}" method="POST" class="grid md:grid-cols-3 gap-4">
                     @csrf
-                    <input type="date" name="last_leave_start" class="rounded border-gray-300" placeholder="Last leave start">
-                    <input type="date" name="last_leave_end" class="rounded border-gray-300" placeholder="Last leave end">
-                    <input type="number" min="0" name="days_taken" class="rounded border-gray-300" placeholder="Days taken">
-                    <input type="number" min="0" name="previous_outstanding_days" class="rounded border-gray-300" placeholder="Previous outstanding days">
-                    <input type="number" min="0" name="current_outstanding_days" class="rounded border-gray-300" placeholder="Current outstanding days">
-                    <select name="transport_allowance_status" class="rounded border-gray-300">
-                        <option value="">Transport status</option>
-                        <option value="paid">Paid</option>
-                        <option value="not_paid">Not paid</option>
-                    </select>
-                    <input type="number" min="0" step="0.01" name="transport_paid_amount" class="rounded border-gray-300" placeholder="Paid TZS">
-                    <input type="number" min="0" step="0.01" name="transport_debt_amount" class="rounded border-gray-300" placeholder="Debt TZS">
-                    <input name="signature_name" class="rounded border-gray-300" placeholder="HR signature name" required>
-                    <textarea name="hr_review_remarks" class="md:col-span-3 rounded border-gray-300" rows="3" placeholder="Remarks"></textarea>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Last Leave Start Date</span>
+                        <input type="date" name="last_leave_start" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Last Leave End Date</span>
+                        <input type="date" name="last_leave_end" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Number of Days Taken</span>
+                        <input type="number" min="0" name="days_taken" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Previous Leave Outstanding Days</span>
+                        <input type="number" min="0" name="previous_outstanding_days" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Current Leave Outstanding Days</span>
+                        <input type="number" min="0" name="current_outstanding_days" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Transport Allowance Status</span>
+                        <select name="transport_allowance_status" class="mt-1 w-full rounded border-gray-300">
+                            <option value="">Select status</option>
+                            <option value="paid">Paid</option>
+                            <option value="not_paid">Not paid</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Transport Allowance Paid Amount (TZS)</span>
+                        <input type="number" min="0" step="0.01" name="transport_paid_amount" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Transport Allowance Debt Amount (TZS)</span>
+                        <input type="number" min="0" step="0.01" name="transport_debt_amount" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">HR Officer Signature Name</span>
+                        <input name="signature_name" class="mt-1 w-full rounded border-gray-300" required>
+                    </label>
+                    <label class="block md:col-span-3">
+                        <span class="text-sm font-semibold">HR Review Remarks</span>
+                        <textarea name="hr_review_remarks" class="mt-1 w-full rounded border-gray-300" rows="3"></textarea>
+                    </label>
                     <button class="md:col-span-3 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Submit Section B Review</button>
                 </form>
             @else
@@ -125,24 +155,42 @@
             @elseif ($roleView === 'hr' && $leave->current_stage === 'pending_final_approval')
                 <form action="{{ route('hr.leaves.final-review', $leave) }}" method="POST" class="grid md:grid-cols-2 gap-4">
                     @csrf
-                    <select name="decision" class="rounded border-gray-300" required>
-                        <option value="">Select decision</option>
-                        <option value="approved">Approve</option>
-                        <option value="denied">Deny</option>
-                    </select>
-                    <select name="transport_allowance_decision" class="rounded border-gray-300">
-                        <option value="">Transport allowance decision</option>
-                        <option value="with">With transport allowance</option>
-                        <option value="without">Without transport allowance</option>
-                    </select>
-                    <select name="transport_allowance_deserved" class="rounded border-gray-300">
-                        <option value="">Allowance entitlement</option>
-                        <option value="deserve">Deserve</option>
-                        <option value="not_deserve">Not deserve</option>
-                    </select>
-                    <input name="designation" class="rounded border-gray-300" placeholder="Designation">
-                    <input name="signature_name" class="rounded border-gray-300" placeholder="Authorizing officer signature name" required>
-                    <textarea name="remarks" rows="3" class="md:col-span-2 rounded border-gray-300" placeholder="Remarks"></textarea>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Final Approval Decision</span>
+                        <select name="decision" class="mt-1 w-full rounded border-gray-300" required>
+                            <option value="">Select decision</option>
+                            <option value="approved">Approve</option>
+                            <option value="denied">Deny</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Transport Allowance Decision</span>
+                        <select name="transport_allowance_decision" class="mt-1 w-full rounded border-gray-300">
+                            <option value="">Select transport decision</option>
+                            <option value="with">With transport allowance</option>
+                            <option value="without">Without transport allowance</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Transport Allowance Entitlement</span>
+                        <select name="transport_allowance_deserved" class="mt-1 w-full rounded border-gray-300">
+                            <option value="">Select entitlement</option>
+                            <option value="deserve">Deserve</option>
+                            <option value="not_deserve">Not deserve</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Authorizing Officer Designation</span>
+                        <input name="designation" class="mt-1 w-full rounded border-gray-300">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold">Authorizing Officer Signature Name</span>
+                        <input name="signature_name" class="mt-1 w-full rounded border-gray-300" required>
+                    </label>
+                    <label class="block md:col-span-2">
+                        <span class="text-sm font-semibold">Final Decision Remarks</span>
+                        <textarea name="remarks" rows="3" class="mt-1 w-full rounded border-gray-300"></textarea>
+                    </label>
                     <button class="md:col-span-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Save Final Decision and Generate PDF</button>
                 </form>
             @else

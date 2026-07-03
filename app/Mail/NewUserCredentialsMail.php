@@ -20,11 +20,13 @@ class NewUserCredentialsMail extends Mailable
 
     public $user;
     public $password;
+    public $loginUrl;
 
     public function __construct($user, $password)
     {
         $this->user = $user;
-        $this->password = $password;    
+        $this->password = $password;
+        $this->loginUrl = route('login');
     }
 
     /**

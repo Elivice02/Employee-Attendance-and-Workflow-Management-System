@@ -79,8 +79,10 @@
                     type="text"
                     name="phone"
                     value="{{ old('phone', $employee->phone) }}"
+                    placeholder="0712345678 or +255712345678"
                     class="w-full border p-2 rounded"
                 >
+                <p class="text-sm text-gray-500 mt-1">Use a Tanzania mobile number. It will be saved as +255 format for SMS.</p>
                 @error('phone')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror

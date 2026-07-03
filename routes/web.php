@@ -15,6 +15,12 @@ use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\PromotionLogController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskProgressController;
+use App\Http\Controllers\DailyLogController;
+use App\Http\Controllers\HRReportController;
+use App\Http\Controllers\PerformanceReportController;
+use App\Http\Controllers\AnnouncementController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,6 +43,12 @@ Route::middleware(['auth', 'role:supervisor'])
         Route::get('/attendance', [AttendanceController::class, 'supervisorIndex'])
             ->name('attendance.index');
 
+        Route::get('/reports', [PerformanceReportController::class, 'supervisorTeam'])
+            ->name('reports.index');
+
+        Route::get('/team-members', [App\Http\Controllers\SupervisorController::class, 'teamMembers'])
+            ->name('team-members.index');
+
         Route::get('/leaves', [LeaveController::class, 'supervisorIndex'])
             ->name('leaves.index');
 
@@ -45,6 +57,62 @@ Route::middleware(['auth', 'role:supervisor'])
 
         Route::post('/leaves/{leave}/recommend', [LeaveController::class, 'supervisorRecommend'])
             ->name('leaves.recommend');
+
+        Route::get('/tasks', [TaskController::class, 'supervisorIndex'])
+            ->name('tasks.index');
+
+        Route::get('/tasks/create', [TaskController::class, 'supervisorCreate'])
+            ->name('tasks.create');
+
+        Route::post('/tasks', [TaskController::class, 'supervisorStore'])
+            ->name('tasks.store');
+
+        Route::get('/tasks/{task}', [TaskController::class, 'supervisorShow'])
+            ->name('tasks.show');
+
+        Route::get('/tasks/{task}/edit', [TaskController::class, 'supervisorEdit'])
+            ->name('tasks.edit');
+
+        Route::put('/tasks/{task}', [TaskController::class, 'supervisorUpdate'])
+            ->name('tasks.update');
+
+        Route::post('/tasks/{task}/updates', [TaskController::class, 'addUpdate'])
+            ->name('tasks.updates.store');
+
+        // Task approval & rejection
+        Route::post('/tasks/{task}/approve', [TaskController::class, 'supervisorApprove'])
+            ->name('tasks.approve');
+
+        Route::post('/tasks/{task}/reject', [TaskController::class, 'supervisorReject'])
+            ->name('tasks.reject');
+
+        // Task progress review
+        Route::get('/tasks/{task}/progress', [TaskProgressController::class, 'show'])
+            ->name('tasks.progress.show');
+
+        Route::post('/tasks/{task}/progress/{progress}/review', [TaskProgressController::class, 'review'])
+            ->name('tasks.progress.review');
+
+        Route::get('/daily-logs', [DailyLogController::class, 'supervisorIndex'])
+            ->name('daily-logs.index');
+
+        Route::get('/daily-logs/create', [DailyLogController::class, 'supervisorCreate'])
+            ->name('daily-logs.create');
+
+        Route::post('/daily-logs', [DailyLogController::class, 'supervisorStore'])
+            ->name('daily-logs.store');
+
+        Route::get('/daily-logs/{dailyLog}', [DailyLogController::class, 'supervisorShow'])
+            ->name('daily-logs.show');
+
+        Route::get('/employee-daily-logs', [DailyLogController::class, 'supervisorReviewIndex'])
+            ->name('daily-log-reviews.index');
+
+        Route::get('/employee-daily-logs/{dailyLog}', [DailyLogController::class, 'supervisorReviewShow'])
+            ->name('daily-log-reviews.show');
+
+        Route::post('/employee-daily-logs/{dailyLog}/review', [DailyLogController::class, 'supervisorReview'])
+            ->name('daily-log-reviews.store');
 
     });
             
@@ -59,12 +127,31 @@ Route::middleware(['auth', 'role:employee'])->prefix('employee')->name('employee
     // Attendance
     Route::get('/attendance', [AttendanceController::class, 'employeeRecords'])->name('attendance');
 
+    Route::get('/performance', [PerformanceReportController::class, 'employeePerformance'])->name('performance.index');
+
     // Leave Requests
     Route::get('/leave-requests', [LeaveController::class, 'employeeIndex'])->name('leave.index');
     Route::get('/leave-requests/{leave}', [LeaveController::class, 'employeeShow'])->name('leave.show');
     Route::get('/request-leave', [LeaveController::class, 'create'])->name('leave.create');
     Route::post('/request-leave/preview', [LeaveController::class, 'preview'])->name('leave.preview');
     Route::post('/request-leave', [LeaveController::class, 'store'])->name('leave.store');
+
+    // Tasks
+    Route::get('/tasks', [TaskController::class, 'employeeIndex'])->name('tasks.index');
+    Route::get('/tasks/{task}', [TaskController::class, 'employeeShow'])->name('tasks.show');
+    Route::post('/tasks/{task}/start', [TaskController::class, 'employeeStart'])->name('tasks.start');
+    Route::post('/tasks/{task}/updates', [TaskController::class, 'addUpdate'])->name('tasks.updates.store');
+
+    // Task progress submission
+    Route::get('/tasks/{task}/progress/create', [TaskProgressController::class, 'create'])->name('tasks.progress.create');
+    Route::post('/tasks/{task}/progress', [TaskProgressController::class, 'store'])->name('tasks.progress.store');
+    Route::put('/tasks/{task}/progress/{progress}', [TaskProgressController::class, 'update'])->name('tasks.progress.update');
+
+    // Daily Logs
+    Route::get('/daily-logs', [DailyLogController::class, 'employeeIndex'])->name('daily-logs.index');
+    Route::get('/daily-logs/create', [DailyLogController::class, 'employeeCreate'])->name('daily-logs.create');
+    Route::post('/daily-logs', [DailyLogController::class, 'employeeStore'])->name('daily-logs.store');
+    Route::get('/daily-logs/{dailyLog}', [DailyLogController::class, 'employeeShow'])->name('daily-logs.show');
 
     // Payroll
     Route::get('/payroll', [EmployeeDashboardController::class, 'payroll'])->name('payroll');
@@ -83,6 +170,12 @@ Route::middleware(['auth', 'role:admin'])
         // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])
             ->name('dashboard');
+
+        Route::get('/settings', [AdminController::class, 'settings'])
+            ->name('settings');
+
+        Route::put('/settings', [AdminController::class, 'updateSettings'])
+            ->name('settings.update');
 
         // HR Management
         Route::get('/hr-managers', [AdminController::class, 'listHR'])
@@ -128,6 +221,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('password.change');
     Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.change.update');
+
+    // Employee Announcements (View & Read)
+    Route::get('/announcements', [AnnouncementController::class, 'userIndex'])
+        ->name('announcements.index');
+
+    Route::get('/announcements/{announcement}', [AnnouncementController::class, 'userShow'])
+        ->name('announcements.show');
+
+    Route::post('/announcements/{announcement}/read', [AnnouncementController::class, 'markAsRead'])
+        ->name('announcements.read');
 });
 
 // HR Routes
@@ -139,23 +242,40 @@ Route::middleware(['auth', 'role:hr'])
         Route::get('/dashboard', [HRDashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::get('/attendance', [AttendanceController::class, 'hrIndex'])
-            ->name('attendance.index');
+        // Task management & reports
+        Route::get('/tasks', [TaskController::class, 'hrIndex'])
+            ->name('tasks.index');
 
-        Route::post('/attendance/{attendance}/late-review', [AttendanceController::class, 'reviewLate'])
-            ->name('attendance.late-review');
+        Route::get('/tasks/create', [TaskController::class, 'hrCreate'])
+            ->name('tasks.create');
 
-        Route::get('/leaves', [LeaveController::class, 'hrIndex'])
-            ->name('leaves.index');
+        Route::post('/tasks', [TaskController::class, 'hrStore'])
+            ->name('tasks.store');
 
-        Route::get('/leaves/{leave}', [LeaveController::class, 'hrShow'])
-            ->name('leaves.show');
+        Route::get('/tasks/{task}', [TaskController::class, 'hrShow'])
+            ->name('tasks.show');
 
-        Route::post('/leaves/{leave}/verify', [LeaveController::class, 'hrVerify'])
-            ->name('leaves.verify');
+        // Reports
+        Route::get('/reports/weekly', [HRDashboardController::class, 'weeklyReport'])
+            ->name('reports.weekly');
 
-        Route::post('/leaves/{leave}/final-review', [LeaveController::class, 'hrFinalReview'])
-            ->name('leaves.final-review');
+        Route::get('/reports/monthly', [HRDashboardController::class, 'monthlyReport'])
+            ->name('reports.monthly');
+
+        Route::get('/reports/kpi', [HRDashboardController::class, 'kpiMetrics'])
+            ->name('reports.kpi');
+
+        Route::get('/employees/{employee}/performance', [HRDashboardController::class, 'employeePerformance'])
+            ->name('employees.performance');
+
+        Route::get('/supervisor-daily-logs', [DailyLogController::class, 'hrReviewIndex'])
+            ->name('daily-log-reviews.index');
+
+        Route::get('/supervisor-daily-logs/{dailyLog}', [DailyLogController::class, 'hrReviewShow'])
+            ->name('daily-log-reviews.show');
+
+        Route::post('/supervisor-daily-logs/{dailyLog}/review', [DailyLogController::class, 'hrReview'])
+            ->name('daily-log-reviews.store');
 
         // Employees (FULL CRUD)
         Route::resource('employees', EmployeeController::class);
@@ -170,6 +290,42 @@ Route::middleware(['auth', 'role:hr'])
         Route::get('promotions', [PromotionLogController::class, 'index'])
             ->name('promotions.index');
 
+    });
+
+Route::middleware(['auth', 'role:hr,admin'])
+    ->prefix('hr')
+    ->name('hr.')
+    ->group(function () {
+        // Announcements (HR/Admin CRUD + Publish)
+        Route::get('/announcements', [AnnouncementController::class, 'index'])
+            ->name('announcements.index');
+
+        Route::get('/announcements/create', [AnnouncementController::class, 'create'])
+            ->name('announcements.create');
+
+        Route::post('/announcements', [AnnouncementController::class, 'store'])
+            ->name('announcements.store');
+
+        Route::get('/announcements/{announcement}/edit', [AnnouncementController::class, 'edit'])
+            ->name('announcements.edit');
+
+        Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])
+            ->name('announcements.update');
+
+        Route::get('/announcements/{announcement}/publish', [AnnouncementController::class, 'showPublish'])
+            ->name('announcements.publish-form');
+
+        Route::post('/announcements/{announcement}/publish', [AnnouncementController::class, 'publish'])
+            ->name('announcements.publish');
+
+        Route::post('/announcements/{announcement}/archive', [AnnouncementController::class, 'archive'])
+            ->name('announcements.archive');
+
+        Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])
+            ->name('announcements.destroy');
+
+        Route::get('/announcements/{announcement}/recipients', [AnnouncementController::class, 'showRecipients'])
+            ->name('announcements.recipients');
     });
 
 // Password Reset Routes

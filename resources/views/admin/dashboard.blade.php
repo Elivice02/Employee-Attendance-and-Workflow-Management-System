@@ -35,6 +35,16 @@
                    class="block px-3 py-2 rounded hover:bg-gray-100">
                    Departments
                 </a>
+
+                <a href="{{ route('admin.settings') }}"
+                   class="block px-3 py-2 rounded hover:bg-gray-100">
+                   System Settings
+                </a>
+
+                <a href="{{ route('hr.announcements.index') }}"
+                   class="block px-3 py-2 rounded hover:bg-gray-100">
+                   Announcements
+                </a>
             </nav>
         </div>
 
@@ -99,6 +109,27 @@
                 <p class="text-3xl font-bold mt-2">{{ $totalEmployees }}</p>
             </div>
 
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="text-gray-500 text-sm">Work Hours</h3>
+                <p class="text-xl font-bold mt-2">
+                    {{ \Illuminate\Support\Str::of($settings->work_start_time)->substr(0, 5) }}
+                    -
+                    {{ \Illuminate\Support\Str::of($settings->work_end_time)->substr(0, 5) }}
+                </p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="text-gray-500 text-sm">Late Grace</h3>
+                <p class="text-xl font-bold mt-2">{{ $settings->late_grace_minutes }} minutes</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="text-gray-500 text-sm">Company</h3>
+                <p class="text-xl font-bold mt-2">{{ $settings->company_name }}</p>
+            </div>
         </div>
 
         <!-- Recent Users -->

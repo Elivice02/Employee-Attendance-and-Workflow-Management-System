@@ -148,4 +148,85 @@ class User extends Authenticatable
     {
         return $this->hasMany(Leave::class, 'hr_id');
     }
+
+    public function assignedTasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    public function createdTasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_by');
+    }
+
+    public function taskUpdates()
+    {
+        return $this->hasMany(TaskUpdate::class);
+    }
+
+    /**
+     * Get all task progress records submitted by this user
+     */
+    public function taskProgress()
+    {
+        return $this->hasMany(TaskProgress::class, 'employee_id');
+    }
+
+    /**
+     * Get all task progress records reviewed by this supervisor
+     */
+    public function reviewedTaskProgress()
+    {
+        return $this->hasMany(TaskProgress::class, 'reviewed_by');
+    }
+
+    public function dailyLogs()
+    {
+        return $this->hasMany(DailyLog::class);
+    }
+
+    public function dailyLogReviews()
+    {
+        return $this->hasMany(DailyLogReview::class, 'reviewed_by');
+    }
+
+    /**
+     * Get announcements received by this user
+     */
+    public function receivedAnnouncements()
+    {
+        return $this->belongsToMany(
+            Announcement::class,
+            'announcement_recipients'
+        )->withPivot('read_at', 'created_at')
+          ->withTimestamps();
+    }
+
+    /**
+     * Get unread announcements for this user
+     */
+    public function unreadAnnouncements()
+    {
+        return $this->receivedAnnouncements()
+                    ->whereNull('announcement_recipients.read_at')
+                    ->orderBy('published_at', 'desc');
+    }
+
+    /**
+     * Get count of unread announcements
+     */
+    public function getUnreadAnnouncementCount(): int
+    {
+        return $this->receivedAnnouncements()
+                    ->whereNull('announcement_recipients.read_at')
+                    ->count();
+    }
+
+    /**
+     * Get announcements created by this user
+     */
+    public function createdAnnouncements()
+    {
+        return $this->hasMany(Announcement::class, 'created_by');
+    }
 }

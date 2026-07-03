@@ -17,8 +17,12 @@
         <nav class="flex-1 space-y-3">
             <a href="{{ route('supervisor.dashboard') }}" class="block hover:bg-slate-800 p-2 rounded transition">Dashboard</a>
             <a href="{{ route('profile.edit') }}" class="block hover:bg-slate-800 p-2 rounded transition">My Profile</a>
-            <a href="#" class="block hover:bg-slate-800 p-2 rounded transition">Team Members</a>
+            <a href="{{ route('supervisor.team-members.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Team Members</a>
             <a href="{{ route('supervisor.attendance.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Attendance Review</a>
+            <a href="{{ route('supervisor.reports.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Team Analysis</a>
+            <a href="{{ route('supervisor.tasks.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Task Management</a>
+            <a href="{{ route('supervisor.daily-logs.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">My Daily Logs</a>
+            <a href="{{ route('supervisor.daily-log-reviews.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Employee Logs</a>
             <a href="{{ route('notifications.index') }}" class="flex items-center justify-between hover:bg-slate-800 p-2 rounded transition">
                 <span>Notifications</span>
                 @php($notificationCount = auth()->user()->appNotifications()->unread()->count())
@@ -29,7 +33,6 @@
                 @endif
             </a>
             <a href="{{ route('supervisor.leaves.index') }}" class="block hover:bg-slate-800 p-2 rounded transition">Leave Recommendations</a>
-            <a href="#" class="block hover:bg-slate-800 p-2 rounded transition">Reports</a>
         </nav>
 
         <!-- Logout Button at Bottom -->

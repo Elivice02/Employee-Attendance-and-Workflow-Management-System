@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\TanzaniaPhoneNumber;
+use App\Support\TanzaniaPhoneNumber as PhoneNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -24,9 +26,11 @@ class ProfileController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'gender' => ['nullable', Rule::in(['male', 'female'])],
             'date_of_birth' => ['nullable', 'date'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', new TanzaniaPhoneNumber],
             'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
+
+        $validated['phone'] = PhoneNumber::normalize($validated['phone'] ?? null);
 
         if ($request->hasFile('profile_picture')) {
             if ($user->profile_picture) {
